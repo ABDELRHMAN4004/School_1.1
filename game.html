@@ -1,486 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>لعبة الجملة الاسمية والفعلية</title>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      text-align: center;
-      padding: 20px;
-      background: linear-gradient(180deg, #cceeff, #ffffff);
-      background-size: 400% 400%;
-      animation: gradientBG 10s ease infinite;
-      overflow: hidden;
-    }
-    @keyframes gradientBG {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
-
-    .question {
-      font-size: 40px;
-      margin-bottom: 50px;
-    }
-
-    button {
-      font-size: 50px;
-      padding: 25px 60px;
-      margin: 25px;
-      cursor: pointer;
-      border-radius: 50px;
-      border: 2px solid #ff7f50;
-      background-color: #ff6347;
-      color: white;
-      font-weight: bold;
-      transition: all 0.4s ease;
-    }
-
-    button:hover {
-      background-color: #ff4500;
-      transform: translateY(-5px);
-    }
-
-    button:active {
-      background-color: #ff3300;
-      transform: translateY(0);
-    }
-
-    #feedback {
-      margin-top: 30px;
-      font-size: 30px;
-      font-weight: bold;
-    }
-
-    #score {
-      font-size: 35px;
-      font-weight: bold;
-      color: #333;
-      margin-top: 20px;
-    }
-
-    #timer {
-      font-size: 30px;
-      color: #ff6347;
-      font-weight: bold;
-    }
-
-    #timer-container {
-      position: relative;
-      display: inline-block;
-    }
-
-    .hourglass {
-      width: 50px;
-      height: 90px;
-      border: 3px solid #ff6347;
-      border-radius: 20px;
-      margin-top: 10px;
-      position: relative;
-      background: radial-gradient(circle at 50% 50%, #ff6347, transparent);
-      animation: shake 2s infinite;
-    }
-
-    .hourglass:before {
-      content: '';
-      position: absolute;
-      top: 15px;
-      left: 50%;
-      width: 10px;
-      height: 10px;
-      background-color: #ff6347;
-      border-radius: 50%;
-      transform: translateX(-50%);
-      animation: drop 1s ease-in-out infinite;
-    }
-
-    @keyframes drop {
-      0% { top: 15px; }
-      50% { top: 70px; }
-      100% { top: 15px; }
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: rotate(0deg); }
-      50% { transform: rotate(10deg); }
-    }
-
-    h1 {
-      font-size: 60px;
-      color: #ff7f50;
-    }
-
-    h2 {
-      font-size: 35px;
-      color: #333;
-    }
-
-    #startBtn {
-      font-size: 50px;
-      padding: 30px 80px;
-      background-color: #32cd32;
-      color: white;
-      font-weight: bold;
-      border-radius: 30px;
-      transition: all 0.3s ease;
-    }
-
-    #startBtn:hover {
-      background-color: #228b22;
-      transform: scale(1.1);
-    }
-
-    #startBtn:active {
-      background-color: #006400;
-      transform: scale(1);
-    }
-
-    #dashboard {
-      position: fixed;
-      top: 10%;
-      left: 10px;
-      width: 400px;
-      padding: 20px;
-      background-color: #4CAF50;
-      color: white;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      z-index: 20;
-      display: none;
-    }
-
-    #dashboard h3 {
-      margin-bottom: 20px;
-      font-size: 25px;
-      text-align: center;
-      color: #ff7f50;
-    }
-
-    .dashboard-item {
-      margin-bottom: 30px;
-      font-size: 20px;
-    }
-
-    .dashboard-item span {
-      font-weight: bold;
-    }
-
-    #gameArea {
-      display: none;
-      margin-left: 300px;
-      width: 70%;
-      max-width: 800px;
-    }
-
-    /* مؤثرات النجوم */
-    .star {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background: yellow;
-      border-radius: 50%;
-      animation: twinkle 2s infinite ease-in-out alternate;
-    }
-
-    @keyframes twinkle {
-      0% { opacity: 0.2; transform: scale(1); }
-      100% { opacity: 1; transform: scale(1.5); }
-    }
-
-    /* الألعاب النارية */
-    .firework {
-      position: absolute;
-      width: 8px;
-      height: 6px;
-      background-color: red;
-      border-radius: 50%;
-      animation: explode 1s ease-out forwards;
-    }
-
-    @keyframes explode {
-      0% { transform: translate(0, 0) scale(1); opacity: 1; }
-      100% { transform: translate(var(--x), var(--y)) scale(0.1); opacity: 0; }
-    }
-
-    /* شخصيات بتتحرك */
-    /* شخصيات بتتحرك */
-.character {
-    position: absolute;
-    bottom: 0;
-    width: 500px;
-    height: 250px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    animation: walk 10s linear forwards;
-    z-index: 100;
-  }
-  
-  @keyframes walk {
-    0% { right: -150px; opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { right: 100%; opacity: 0; }
-  }
-  
-      
-
-  </style>
-</head>
-<body>
-
-  <!-- النجوم -->
-  <script>
-    for (let i = 0; i < 100; i++) {
-      const star = document.createElement('div');
-      star.className = 'star';
-      star.style.top = `${Math.random() * 100}%`;
-      star.style.left = `${Math.random() * 100}%`;
-      star.style.animationDuration = `${1 + Math.random() * 2}s`;
-      document.body.appendChild(star);
-    }
-  </script>
-
-  <script>
-  const character = document.getElementById('character');
-  const frames = ['p1.jpg', 'p2.jpg', 'p3.jpg', 'p4.jpg', 'p5.jpg', 'p6.jpg'];
-  let currentFrame = 0;
-
-  setInterval(() => {
-    character.style.backgroundImage = `url('${frames[currentFrame]}')`;
-    currentFrame = (currentFrame + 1) % frames.length;
-  }, 150); // كل 150 ملي ثانية يبدّل الصورة
-</script>
-
-
-  <!-- شخصية متحركة -->
-  <div class="character" style="animation-delay: 2s;"></div>
-
-  <!-- صفحة الشرح -->
-  <div id="info">
-    <h1>اختر نوع الجملة</h1>
-    <h2>مرحبًا! في هذه اللعبة، سوف تتعلم الفرق بين الجمل الاسمية والفعلية.</h2>
-    <p style="font-size: 30px;">الجميلة الاسمية والجملة الفعلية</p>
-    <p style="font-size: 30px;">ركز معايا يا شاطر</p>
-    <p style="font-size: 37px;">
-      الجملة الاسمية = مبتدأ + خبر، يعني دي لما تبدأ بحاجة ثابتة، زي "الولد نشيط".
-    </p>
-    <p style="font-size: 37px;">
-      أما الجملة الفعلية = فعل + فاعل، زي "تطير العصافير"، يعني في فعل بيحصل.
-    </p>
-    <p style="font-size: 45px;">
-      الجملة الاسمية بتتكلم عن حاجة ثابتة، الجملة الفعلية بتتكلم عن حاجة بتحصل.
-    </p>
-    <button id="startBtn" onclick="startGame()">ابدأ اللعبة</button>
-  </div>
-
-  <!-- باقي اللعبة -->
-  <div id="levelSelection" style="display: none;">
-    <h2>اختر مستوى اللعبة</h2>
-    <button onclick="startLevel(5)">مستوى 1 (5 أسئلة)</button>
-    <button onclick="startLevel(10)">مستوى 2 (10 أسئلة)</button>
-    <button onclick="startLevel(30)">مستوى 3 (30 سؤالًا)</button>
-  </div>
-
-  <div id="gameArea">
-    <div class="question" id="question"></div>
-    <div id="timer-container">
-      <div id="timer"></div>
-      <div class="hourglass"></div>
-    </div>
-    <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
-      <button onclick="checkAnswer('اسمية')">🏠 جملة اسمية</button>
-      <button onclick="checkAnswer('فعلية')">🏃 جملة فعلية</button>
-    </div>
-    <div id="feedback"></div>
-  </div>
-
-  <!-- لوحة التحكم -->
-  <div id="dashboard">
-    <p style="font-size: 50px;">لوحة التحكم</p>
-    <div class="dashboard-item">الأسئلة الإجمالية: <span id="dashboard-questions">0</span></div>
-    <div class="dashboard-item">الوقت المتبقي: <span id="dashboard-timer">20</span> ثواني</div>
-    <div class="dashboard-item">الإجابات الصحيحة: <span id="correct-answers">0</span></div>
-    <div class="dashboard-item">الإجابات الخاطئة: <span id="wrong-answers">0</span></div>
-    <div class="dashboard-item">الأسئلة الفائتة: <span id="missed-answers">0</span></div>
-    <div class="dashboard-item">النقاط: <span id="dashboard-score">0</span></div>
-  </div>
-
-  <audio id="correct-sound" src="T.mp3" preload="auto"></audio>
-  <audio id="wrong-sound" src="X.mp3" preload="auto"></audio>
-
-  <!-- سكريبت الألعاب النارية -->
-  <script>
-    function firework(x, y) {
-      for (let i = 0; i < 500; i++) {
-        const spark = document.createElement("div");
-        spark.className = "firework";
-        spark.style.left = x + "px";
-        spark.style.top = y + "px";
-        spark.style.setProperty('--x', `${Math.random() * 2000 }px`);
-        spark.style.setProperty('--y', `${Math.random() * 2000 }px`);
-        document.body.appendChild(spark);
-        setTimeout(() => spark.remove(), 1000);
-      }
-    }
-
-    document.addEventListener("click", (e) => firework(e.clientX, e.clientY));
-  </script>
-  <script>
-    const images = ['p1.jpg', 'p2.jpg', 'p3.jpg', 'p4.jpg', 'p5.jpg', 'p6.jpg'];
-    let current = 0;
-  
-    function showCharacter() {
-      const img = images[current];
-      const char = document.createElement("div");
-      char.className = "character";
-      char.style.backgroundImage = `url('${img}')`;
-      char.style.right = "-150px";
-      char.style.animationDelay = "0s";
-      document.body.appendChild(char);
-  
-      setTimeout(() => {
-        char.remove();
-      }, 6000); // نفس مدة الانيميشن
-  
-      current = (current + 1) % images.length;
-      setTimeout(showCharacter, 7000); // كل 7 ثواني
-    }
-  
-    window.onload = function () {
-      showCharacter();
-    };
-  </script>
-  
-
-  <!-- سكريبت اللعبة نفسه -->
-  <script>
-    
-    const allQuestions = [
-    { text: "الجو جميل اليوم", type: "اسمية", شرح: "بدأت باسم، فهي جملة اسمية." },
-    { text: "ذهب محمد إلى المدرسة", type: "فعلية", شرح: "بدأت بالفعل 'ذهب'، فهي جملة فعلية." },
-    { text: "السيارة سريعة", type: "اسمية", شرح: "بدأت باسم 'السيارة'، فهي جملة اسمية." },
-    { text: "الطالب يذاكر الدرس", type: "فعلية", شرح: "تبدأ بفعل (يذاكر)" },
-    { text: "الجبال خضراءٌ", type: "اسمية", شرح: "تبدأ باسم (الجبال)" },
-    { text: "الطفل ينام مبكرًا", type: "فعلية", شرح: "تبدأ بفعل (ينام)" },
-    { text: "المحيط عميقٌ", type: "اسمية", شرح: "تبدأ باسم (المحيط)" },
-    { text: "الولد يصطاد السمك", type: "فعلية", شرح: "تبدأ بفعل (يصطاد)" },
-    { text: "الشمس مشرقةٌ", type: "اسمية", شرح: "تبدأ باسم (الشمس)" },
-    { text: "الطلاب يشاركون في الأنشطة", type: "فعلية", شرح: "تبدأ بفعل (يشاركون)" },
-    { text: "النافذة مفتوحةٌ", type: "اسمية", شرح: "تبدأ باسم (النافذة)" },
-    { text: "الطفل يشرب الماء", type: "فعلية", شرح: "تبدأ بفعل (يشرب)" },
-    { text: "الفصل هادئٌ", type: "اسمية", شرح: "تبدأ باسم (الفصل)" },
-    { text: "الأب يغسل السيارة", type: "فعلية", شرح: "تبدأ بفعل (يغسل)" },
-    { text: "الصورة جميلةٌ", type: "اسمية", شرح: "تبدأ باسم (الصورة)" },
-    { text: "الولد ينظف غرفته", type: "فعلية", شرح: "تبدأ بفعل (ينظف)" },
-    { text: "الطاولة مرتبةٌ", type: "اسمية", شرح: "تبدأ باسم (الطاولة)" },
-    { text: "العصفور يغرد على الشجرة", type: "فعلية", شرح: "تبدأ بفعل (يغرد)" },
-    { text: "السماء زرقاءٌ", type: "اسمية", شرح: "تبدأ باسم (السماء)" },
-    { text: "الطلاب يذهبون إلى المدرسة", type: "فعلية", شرح: "تبدأ بفعل (يذهبون)" },
-    { text: "الطفل ذكيٌ", type: "اسمية", شرح: "تبدأ باسم (الطفل)" },
-    { text: "المعلم يشرح الدرس", type: "فعلية", شرح: "تبدأ بفعل (يشرح)" },
-    { text: "الحرارة مرتفعةٌ", type: "اسمية", شرح: "تبدأ باسم (الحرارة)" },
-    { text: "الأطفال يلعبون في الحديقة", type: "فعلية", شرح: "تبدأ بفعل (يلعبون)" },
-    { text: "البيت كبيرٌ", type: "اسمية", شرح: "تبدأ باسم (البيت)" },
-    { text: "الأم تجهز الطعام", type: "فعلية", شرح: "تبدأ بفعل (تجهز)" },
-    { text: "الكتاب مفتوحٌ", type: "اسمية", شرح: "تبدأ باسم (الكتاب)" },
-    { text: "الطلاب يشاهدون العرض", type: "فعلية", شرح: "تبدأ بفعل (يشاهدون)" },
-    { text: "الليل هادئٌ", type: "اسمية", شرح: "تبدأ باسم (الليل)" },
-    { text: "الطالب يذاكر في غرفته", type: "فعلية", شرح: "تبدأ بفعل (يذاكر)" },
-    { text: "البيت نظيفٌ", type: "اسمية", شرح: "تبدأ باسم (البيت)" },
-    { text: "الولد يركض في الحديقة", type: "فعلية", شرح: "تبدأ بفعل (يركض)" },
-    { text: "الشجرة وارفةٌ", type: "اسمية", شرح: "تبدأ باسم (الشجرة)" },
-    { text: "البنت ترتب ملابسها", type: "فعلية", شرح: "تبدأ بفعل (ترتب)" },
-    { text: "الشمس ساطعةٌ", type: "اسمية", شرح: "تبدأ باسم (الشمس)" },
-    { text: "الطفل يقفز فوق الحواجز", type: "فعلية", شرح: "تبدأ بفعل (يقفز)" },
-    { text: "الزهراء طيبةٌ", type: "اسمية", شرح: "تبدأ باسم (الزهراء)" },
-    { text: "المعلم يكتب على السبورة", type: "فعلية", شرح: "تبدأ بفعل (يكتب)" },
-    { text: "الهواء نقيٌ", type: "اسمية", شرح: "تبدأ باسم (الهواء)" },
-    { text: "الولد سعيدٌ", type: "اسمية", شرح: "تبدأ باسم (الولد)" },
-    { text: "الطاهية تطبخ الطعام", type: "فعلية", شرح: "تبدأ بفعل (تطبخ)" },
-    { text: "السماء صافيةٌ", type: "اسمية", شرح: "تبدأ باسم (السماء)" },
-    { text: "الأولاد يلعبون في الساحة", type: "فعلية", شرح: "تبدأ بفعل (يلعبون)" },
-    { text: "الماء باردٌ", type: "اسمية", شرح: "تبدأ باسم (الماء)" },
-    { text: "الطفلة تغسل يديها", type: "فعلية", شرح: "تبدأ بفعل (تغسل)" },
-    { text: "القمر منيرٌ", type: "اسمية", شرح: "تبدأ باسم (القمر)" },
-    { text: "الطفل يركض نحو أمه", type: "فعلية", شرح: "تبدأ بفعل (يركض)" },
-    { text: "الزهرة جميلةٌ", type: "اسمية", شرح: "تبدأ باسم (الزهرة)" },
-    { text: "الرجل يقرأ الجريدة", type: "فعلية", شرح: "تبدأ بفعل (يقرأ)" }
-  ];
-
-    let score = 0, correctAnswers = 0, wrongAnswers = 0, missedAnswers = 0;
-    let currentQuestionIndex = 0, timer, timeLeft = 20, levelQuestions = [];
-
-    function startGame() {
-      document.getElementById("info").style.display = "none";
-      document.getElementById("levelSelection").style.display = "block";
-    }
-
-    function startLevel(n) {
-      levelQuestions = allQuestions.slice(0, n);
-      document.getElementById("levelSelection").style.display = "none";
-      document.getElementById("gameArea").style.display = "block";
-      document.getElementById("dashboard").style.display = "block";
-      displayQuestion();
-    }
-
-    function displayQuestion() {
-      const q = levelQuestions[currentQuestionIndex];
-      document.getElementById("question").textContent = q.text;
-      document.getElementById("timer").textContent = `الوقت المتبقي: ${timeLeft} ثواني`;
-      timeLeft = 20;
-      clearInterval(timer);
-      timer = setInterval(updateTimer, 1000);
-    }
-
-    function updateTimer() {
-      timeLeft--;
-      document.getElementById("timer").textContent = `الوقت المتبقي: ${timeLeft} ثواني`;
-      document.getElementById("dashboard-timer").textContent = timeLeft;
-      if (timeLeft <= 0) {
-        clearInterval(timer);
-        missedAnswers++;
-        document.getElementById("missed-answers").textContent = missedAnswers;
-        nextQuestion();
-      }
-    }
-
-    function checkAnswer(answer) {
-      const correct = levelQuestions[currentQuestionIndex].type;
-      if (answer === correct) {
-        score++; correctAnswers++;
-        document.getElementById("correct-sound").play();
-      } else {
-        wrongAnswers++;
-        document.getElementById("wrong-sound").play();
-      }
-      updateStats();
-      nextQuestion();
-    }
-
-    function nextQuestion() {
-      if (currentQuestionIndex < levelQuestions.length - 1) {
-        currentQuestionIndex++;
-        displayQuestion();
-      } else {
-        endGame();
-      }
-    }
-
-    function endGame() {
-      document.getElementById("gameArea").style.display = "none";
-      document.getElementById("dashboard").style.display = "none";
-      alert("تمت اللعبة! إجمالي النقاط: " + score);
-    }
-
-    function updateStats() {
-      document.getElementById("dashboard-score").textContent = score;
-      document.getElementById("correct-answers").textContent = correctAnswers;
-      document.getElementById("wrong-answers").textContent = wrongAnswers;
-      document.getElementById("missed-answers").textContent = missedAnswers;
-    }
-  </script>
-</body>
-</html>
